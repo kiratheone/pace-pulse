@@ -1,0 +1,39 @@
+{
+  "name": "pacepulse",
+  "author": "PacePulse contributors",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "PacePulse",
+    "uuid": "5b45760f-d0a2-4be0-99ab-3d43b3faccb6",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery",
+      "flint",
+      "gabbro"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "capabilities": [
+      "location",
+      "health"
+    ],
+    "messageKeys": [
+      "latitude",
+      "longitude",
+      "accuracy",
+      "gpsError"
+    ],
+    "resources": {
+      "media": []
+    }
+  }
+}
