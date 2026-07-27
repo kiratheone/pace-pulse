@@ -66,6 +66,14 @@ class HeartRateIntegrationTests(unittest.TestCase):
         self.assertLess(pace_frame, heart_rate_frame)
         self.assertLess(heart_rate_frame, heart_rate_unit_frame)
         self.assertIn("graphics_fill_circle", self.dashboard_source)
+        self.assertIn("int16_t status_y = PBL_IF_ROUND_ELSE(10, 2);", self.dashboard_source)
+        self.assertIn("int16_t summary_y = status_y + status_height;", self.dashboard_source)
+        self.assertIn("GRect(horizontal_inset + half_width, summary_y + 4, half_width, 24)", self.dashboard_source)
+        self.assertIn("FONT_KEY_GOTHIC_14_BOLD", self.dashboard_source)
+        self.assertIn("static GPoint s_heart_points[] = {{2, 8}, {18, 8}, {10, 19}};", self.dashboard_source)
+        self.assertIn("graphics_fill_circle(ctx, GPoint(6, 6), 5);", self.dashboard_source)
+        self.assertIn("graphics_fill_circle(ctx, GPoint(14, 6), 5);", self.dashboard_source)
+        self.assertIn("int16_t heart_group_x = (bounds.size.w - 104) / 2;", self.dashboard_source)
         self.assertIn("GRect(heart_group_x, heart_rate_y + 2, 20, 20)", self.dashboard_source)
         self.assertRegex(
             self.dashboard_source,
@@ -73,8 +81,9 @@ class HeartRateIntegrationTests(unittest.TestCase):
         )
         self.assertRegex(
             self.dashboard_source,
-            r"text_layer_set_font\(s_text_heart_rate_unit,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_18_BOLD\)\)",
+            r"text_layer_set_font\(s_text_heart_rate_unit,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_14_BOLD\)\)",
         )
+        self.assertIn("GRect(heart_group_x + 76, heart_rate_y + 6, 28, 20)", self.dashboard_source)
         self.assertIn('"--"', self.dashboard_source)
         self.assertIn('text_layer_set_text(s_text_heart_rate_unit, "BPM");', self.dashboard_source)
         self.assertNotIn("FONT_KEY_GOTHIC_28_BOLD", self.dashboard_source)

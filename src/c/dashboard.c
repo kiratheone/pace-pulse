@@ -14,7 +14,7 @@ static Layer *s_heart_zone_layer;
 static GPath *s_heart_path;
 static HeartRateZone s_heart_rate_zone;
 
-static GPoint s_heart_points[] = {{2, 7}, {18, 7}, {10, 19}};
+static GPoint s_heart_points[] = {{2, 8}, {18, 8}, {10, 19}};
 static const GPathInfo s_heart_path_info = {
   .num_points = 3,
   .points = s_heart_points,
@@ -46,8 +46,8 @@ static void prv_heart_layer_update_proc(Layer *layer, GContext *ctx) {
     return;
   }
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, GPoint(6, 6), 6);
-  graphics_fill_circle(ctx, GPoint(14, 6), 6);
+  graphics_fill_circle(ctx, GPoint(6, 6), 5);
+  graphics_fill_circle(ctx, GPoint(14, 6), 5);
   gpath_draw_filled(ctx, s_heart_path);
 }
 
@@ -78,7 +78,7 @@ bool dashboard_create(Window *window) {
   }
   GRect bounds = layer_get_bounds(window_layer);
   int16_t horizontal_inset = PBL_IF_ROUND_ELSE(12, 4);
-  int16_t status_y = PBL_IF_ROUND_ELSE(10, 0);
+  int16_t status_y = PBL_IF_ROUND_ELSE(10, 2);
   int16_t status_height = 18;
   int16_t summary_y = status_y + status_height;
   int16_t summary_height = 28;
@@ -88,7 +88,7 @@ bool dashboard_create(Window *window) {
   int16_t content_width = bounds.size.w - horizontal_inset * 2;
   int16_t half_width = content_width / 2;
   int16_t heart_rate_y = metric_y + metric_height;
-  int16_t heart_group_x = (bounds.size.w - 108) / 2;
+  int16_t heart_group_x = (bounds.size.w - 104) / 2;
 
   s_text_status = text_layer_create(
       GRect(horizontal_inset, status_y, content_width, status_height));
@@ -97,7 +97,7 @@ bool dashboard_create(Window *window) {
   }
   prv_format_text_layer(s_text_status);
   text_layer_set_font(s_text_status,
-                      fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+                      fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
   text_layer_set_text_alignment(s_text_status, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_text_status));
 
@@ -113,8 +113,7 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_time));
 
   s_text_distance = text_layer_create(
-      GRect(horizontal_inset + half_width, summary_y, half_width,
-            summary_height));
+      GRect(horizontal_inset + half_width, summary_y + 4, half_width, 24));
   if (s_text_distance == NULL) {
     goto fail;
   }
@@ -157,13 +156,13 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate));
 
   s_text_heart_rate_unit = text_layer_create(
-      GRect(heart_group_x + 74, heart_rate_y, 34, 30));
+      GRect(heart_group_x + 76, heart_rate_y + 6, 28, 20));
   if (s_text_heart_rate_unit == NULL) {
     goto fail;
   }
   prv_format_text_layer(s_text_heart_rate_unit);
   text_layer_set_font(s_text_heart_rate_unit,
-                      fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+                      fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
   text_layer_set_text_alignment(s_text_heart_rate_unit, GTextAlignmentLeft);
   text_layer_set_text(s_text_heart_rate_unit, "BPM");
   layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate_unit));
