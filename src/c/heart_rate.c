@@ -45,3 +45,16 @@ void heart_rate_reset(HeartRateState *state) {
   state->age_seconds = 0;
   state->available = false;
 }
+
+HeartRateZone heart_rate_zone(int32_t bpm) {
+  if (bpm < 132) {
+    return HEART_RATE_ZONE_NONE;
+  }
+  if (bpm <= 150) {
+    return HEART_RATE_ZONE_FAT_BURN;
+  }
+  if (bpm <= 165) {
+    return HEART_RATE_ZONE_ENDURANCE;
+  }
+  return HEART_RATE_ZONE_PERFORMANCE;
+}

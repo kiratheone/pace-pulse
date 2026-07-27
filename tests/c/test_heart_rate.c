@@ -4,6 +4,15 @@
 #include "heart_rate.h"
 
 int main(void) {
+  assert(heart_rate_zone(-1) == HEART_RATE_ZONE_NONE);
+  assert(heart_rate_zone(0) == HEART_RATE_ZONE_NONE);
+  assert(heart_rate_zone(131) == HEART_RATE_ZONE_NONE);
+  assert(heart_rate_zone(132) == HEART_RATE_ZONE_FAT_BURN);
+  assert(heart_rate_zone(150) == HEART_RATE_ZONE_FAT_BURN);
+  assert(heart_rate_zone(151) == HEART_RATE_ZONE_ENDURANCE);
+  assert(heart_rate_zone(165) == HEART_RATE_ZONE_ENDURANCE);
+  assert(heart_rate_zone(166) == HEART_RATE_ZONE_PERFORMANCE);
+
   HeartRateState heart_rate;
   heart_rate_init(&heart_rate);
 

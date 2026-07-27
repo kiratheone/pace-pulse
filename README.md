@@ -17,6 +17,7 @@ the watch sensor when available. Activity history is not stored or uploaded.
 - Invalid, delayed, or implausibly fast GPS updates are ignored safely.
 - Current pace changes to `--:--` after 15 seconds without accepted movement.
 - Live raw heart rate below the pace reading.
+- Three compact bars show fat-burn, endurance, and performance heart-rate zones.
 - `-- BPM` when heart rate is unsupported, unavailable, invalid, or stale for
   more than 15 seconds during a run.
 - One-second heart-rate sampling only while a run is active.
@@ -28,15 +29,15 @@ the watch sensor when available. Activity history is not stored or uploaded.
 Run tracking requires a connected phone for GPS on every platform. Heart rate
 requires watch hardware with a compatible sensor and the Health permission.
 
-| Platform | Run tracking | Heart rate |
+| Watch | Run tracking | Heart rate |
 | --- | --- | --- |
-| Aplite | Yes | No |
-| Basalt | Yes | Hardware dependent |
-| Chalk | Yes | No |
-| Diorite | Yes | Pebble 2 non-SE only |
-| Emery | Yes | Hardware dependent |
-| Flint | Yes | Hardware dependent |
-| Gabbro | Yes | Hardware dependent |
+| Classic, Steel | Yes | No |
+| Time, Time Steel | Yes | Smartstrap dependent |
+| Time Round | Yes | No |
+| Pebble 2 | Yes | Non-SE models only |
+| Pebble Time 2 | Yes | Yes |
+| Pebble 2 Duo | Yes | No |
+| Pebble Round 2 | Yes | No |
 
 ## Controls
 
@@ -57,7 +58,8 @@ PacePulse does not store or upload activity, location, or heart-rate history.
 - Distance is available in kilometers only; miles are not yet supported.
 - GPS accuracy depends on the phone and its current location lock.
 - The emulator cannot produce live heart-rate sensor readings.
-- A physical Pebble 2 non-SE is required to validate live BPM updates.
+- A physical Pebble 2 non-SE or Pebble Time 2 is required to validate live BPM
+  updates.
 
 ## GPS Accuracy
 
@@ -94,9 +96,9 @@ pebble install --emulator diorite
 pebble logs --emulator diorite
 ```
 
-For a physical Pebble 2 non-SE, enable Dev Connect in the Pebble mobile app,
-run `pebble login`, then install with `pebble install --cloudpebble`. Grant
-both Location and Health permissions.
+For a physical Pebble 2 non-SE or Pebble Time 2, enable Dev Connect in the
+Pebble mobile app, run `pebble login`, then install with
+`pebble install --cloudpebble`. Grant both Location and Health permissions.
 
 ### Project Structure
 

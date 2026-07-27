@@ -44,7 +44,8 @@ static void prv_update_pace(void) {
 static void prv_update_heart_rate(void) {
   int32_t bpm = 0;
   bool available = heart_rate_current(&s_heart_rate, &bpm);
-  dashboard_update_heart_rate(available, bpm);
+  HeartRateZone zone = available ? heart_rate_zone(bpm) : HEART_RATE_ZONE_NONE;
+  dashboard_update_heart_rate(available, bpm, zone);
 }
 
 static void prv_set_heart_rate_sampling(bool running) {

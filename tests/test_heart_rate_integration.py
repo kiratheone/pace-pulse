@@ -30,6 +30,21 @@ class HeartRateIntegrationTests(unittest.TestCase):
             pebble["messageKeys"], ["latitude", "longitude", "accuracy", "gpsError"]
         )
 
+    def test_readme_uses_watch_names_instead_of_platform_codenames(self):
+        readme = (ROOT / "README.md").read_text()
+        for watch_name in (
+            "Classic, Steel",
+            "Time, Time Steel",
+            "Time Round",
+            "Pebble 2",
+            "Pebble 2 Duo",
+            "Pebble Time 2",
+            "Pebble Round 2",
+        ):
+            self.assertIn(watch_name, readme)
+        for codename in ("Aplite", "Basalt", "Chalk", "Diorite", "Emery", "Flint", "Gabbro"):
+            self.assertNotIn("| {} |".format(codename), readme)
+
     def test_health_lifecycle_is_guarded_and_resets_sampling(self):
         self.assertIn("#if !defined(PBL_PLATFORM_APLITE)", self.source)
         self.assertIn("HealthMetricHeartRateRawBPM", self.source)
@@ -42,13 +57,30 @@ class HeartRateIntegrationTests(unittest.TestCase):
         self.assertIn("health_service_events_unsubscribe", self.source)
         self.assertIn("tracker_state(&s_tracker) != TRACKER_RUNNING", self.source)
 
-    def test_dashboard_places_pace_above_bpm_and_draws_heart(self):
+    def test_dashboard_uses_compact_metric_labels_and_draws_heart_zones(self):
         pace_frame = self.dashboard_source.index("s_text_pace = text_layer_create")
         heart_rate_frame = self.dashboard_source.index("s_text_heart_rate = text_layer_create")
         self.assertLess(pace_frame, heart_rate_frame)
         self.assertIn("graphics_fill_circle", self.dashboard_source)
         self.assertIn('"-- BPM"', self.dashboard_source)
-        self.assertIn("heart_rate_center_y", self.dashboard_source)
+        self.assertIn("FONT_KEY_GOTHIC_24_BOLD", self.dashboard_source)
+        self.assertNotIn("FONT_KEY_GOTHIC_28_BOLD", self.dashboard_source)
+        self.assertRegex(
+            self.dashboard_source,
+            r"text_layer_set_font\(s_text_distance,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_18_BOLD\)\)",
+        )
+        self.assertIn("s_heart_zone_layer", self.dashboard_source)
+        self.assertIn("HEART_RATE_ZONE_PERFORMANCE", self.dashboard_source)
+        self.assertIn('"%lu.%02lu km"', self.dashboard_source)
+        self.assertNotIn("s_text_time_unit", self.dashboard_source)
+        self.assertNotIn("s_text_distance_unit", self.dashboard_source)
+        self.assertNotIn("s_text_pace_unit", self.dashboard_source)
+        self.assertNotIn('"TIME"', self.dashboard_source)
+        self.assertNotIn('"PACE"', self.dashboard_source)
+
+    def test_readme_lists_supported_physical_heart_rate_watches(self):
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("Pebble 2 non-SE or Pebble Time 2", readme)
 
     def test_pace_buffer_fits_the_largest_uint32_minute_value(self):
         self.assertIn("static char formatted_pace[16];", self.dashboard_source)
@@ -57,13 +89,11 @@ class HeartRateIntegrationTests(unittest.TestCase):
         for layer in (
             "s_text_status",
             "s_text_time",
-            "s_text_time_unit",
             "s_text_distance",
             "s_text_pace",
             "s_text_heart_rate",
-            "s_text_distance_unit",
-            "s_text_pace_unit",
             "s_heart_layer",
+            "s_heart_zone_layer",
         ):
             destroy = "text_layer_destroy" if layer.startswith("s_text") else "layer_destroy"
             self.assertIn("{}({});".format(destroy, layer), self.dashboard_source)
