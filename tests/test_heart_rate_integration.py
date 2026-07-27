@@ -73,20 +73,21 @@ class HeartRateIntegrationTests(unittest.TestCase):
         self.assertIn("static GPoint s_heart_points[] = {{2, 8}, {18, 8}, {10, 19}};", self.dashboard_source)
         self.assertIn("graphics_fill_circle(ctx, GPoint(6, 6), 5);", self.dashboard_source)
         self.assertIn("graphics_fill_circle(ctx, GPoint(14, 6), 5);", self.dashboard_source)
-        self.assertIn("int16_t heart_group_x = (bounds.size.w - 104) / 2;", self.dashboard_source)
-        self.assertIn("GRect(heart_group_x, heart_rate_y + 2, 20, 20)", self.dashboard_source)
+        self.assertIn("int16_t heart_center_x = bounds.size.w / 2;", self.dashboard_source)
+        self.assertIn("GRect(heart_center_x - 52, heart_rate_y + 6, 20, 20)", self.dashboard_source)
+        self.assertIn("GRect(heart_center_x - 30, heart_rate_y, 60, 32)", self.dashboard_source)
         self.assertRegex(
             self.dashboard_source,
-            r"text_layer_set_font\(s_text_heart_rate,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_24_BOLD\)\)",
+            r"text_layer_set_font\(s_text_heart_rate,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_28_BOLD\)\)",
         )
         self.assertRegex(
             self.dashboard_source,
             r"text_layer_set_font\(s_text_heart_rate_unit,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_14_BOLD\)\)",
         )
-        self.assertIn("GRect(heart_group_x + 76, heart_rate_y + 6, 28, 20)", self.dashboard_source)
+        self.assertIn("GRect(heart_center_x + 30, heart_rate_y + 9, 28, 18)", self.dashboard_source)
+        self.assertIn("GRect(heart_center_x - 37, heart_rate_y + 36, 74, 8)", self.dashboard_source)
         self.assertIn('"--"', self.dashboard_source)
         self.assertIn('text_layer_set_text(s_text_heart_rate_unit, "BPM");', self.dashboard_source)
-        self.assertNotIn("FONT_KEY_GOTHIC_28_BOLD", self.dashboard_source)
         self.assertRegex(
             self.dashboard_source,
             r"text_layer_set_font\(s_text_distance,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_18_BOLD\)\)",

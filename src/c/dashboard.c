@@ -88,7 +88,7 @@ bool dashboard_create(Window *window) {
   int16_t content_width = bounds.size.w - horizontal_inset * 2;
   int16_t half_width = content_width / 2;
   int16_t heart_rate_y = metric_y + metric_height;
-  int16_t heart_group_x = (bounds.size.w - 104) / 2;
+  int16_t heart_center_x = bounds.size.w / 2;
 
   s_text_status = text_layer_create(
       GRect(horizontal_inset, status_y, content_width, status_height));
@@ -133,7 +133,7 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_pace));
 
   s_heart_layer = layer_create(
-      GRect(heart_group_x, heart_rate_y + 2, 20, 20));
+      GRect(heart_center_x - 52, heart_rate_y + 6, 20, 20));
   if (s_heart_layer == NULL) {
     goto fail;
   }
@@ -145,18 +145,18 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, s_heart_layer);
 
   s_text_heart_rate = text_layer_create(
-      GRect(heart_group_x + 24, heart_rate_y, 50, 30));
+      GRect(heart_center_x - 30, heart_rate_y, 60, 32));
   if (s_text_heart_rate == NULL) {
     goto fail;
   }
   prv_format_text_layer(s_text_heart_rate);
   text_layer_set_font(s_text_heart_rate,
-                      fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text_alignment(s_text_heart_rate, GTextAlignmentRight);
+                      fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_text_alignment(s_text_heart_rate, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate));
 
   s_text_heart_rate_unit = text_layer_create(
-      GRect(heart_group_x + 76, heart_rate_y + 6, 28, 20));
+      GRect(heart_center_x + 30, heart_rate_y + 9, 28, 18));
   if (s_text_heart_rate_unit == NULL) {
     goto fail;
   }
@@ -168,7 +168,7 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate_unit));
 
   s_heart_zone_layer = layer_create(
-      GRect((bounds.size.w - 74) / 2, heart_rate_y + 32, 74, 8));
+      GRect(heart_center_x - 37, heart_rate_y + 36, 74, 8));
   if (s_heart_zone_layer == NULL) {
     goto fail;
   }
