@@ -60,10 +60,23 @@ class HeartRateIntegrationTests(unittest.TestCase):
     def test_dashboard_uses_compact_metric_labels_and_draws_heart_zones(self):
         pace_frame = self.dashboard_source.index("s_text_pace = text_layer_create")
         heart_rate_frame = self.dashboard_source.index("s_text_heart_rate = text_layer_create")
+        heart_rate_unit_frame = self.dashboard_source.index(
+            "s_text_heart_rate_unit = text_layer_create"
+        )
         self.assertLess(pace_frame, heart_rate_frame)
+        self.assertLess(heart_rate_frame, heart_rate_unit_frame)
         self.assertIn("graphics_fill_circle", self.dashboard_source)
-        self.assertIn('"-- BPM"', self.dashboard_source)
-        self.assertIn("FONT_KEY_GOTHIC_24_BOLD", self.dashboard_source)
+        self.assertIn("GRect(heart_group_x, heart_rate_y + 2, 20, 20)", self.dashboard_source)
+        self.assertRegex(
+            self.dashboard_source,
+            r"text_layer_set_font\(s_text_heart_rate,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_24_BOLD\)\)",
+        )
+        self.assertRegex(
+            self.dashboard_source,
+            r"text_layer_set_font\(s_text_heart_rate_unit,\s+fonts_get_system_font\(FONT_KEY_GOTHIC_18_BOLD\)\)",
+        )
+        self.assertIn('"--"', self.dashboard_source)
+        self.assertIn('text_layer_set_text(s_text_heart_rate_unit, "BPM");', self.dashboard_source)
         self.assertNotIn("FONT_KEY_GOTHIC_28_BOLD", self.dashboard_source)
         self.assertRegex(
             self.dashboard_source,
@@ -92,6 +105,7 @@ class HeartRateIntegrationTests(unittest.TestCase):
             "s_text_distance",
             "s_text_pace",
             "s_text_heart_rate",
+            "s_text_heart_rate_unit",
             "s_heart_layer",
             "s_heart_zone_layer",
         ):

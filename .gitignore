@@ -3,3 +3,4 @@ build/
 .lock-waf_darwin_build
 __pycache__/
 *.pyc
+docs/superpowers

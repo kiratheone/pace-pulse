@@ -8,12 +8,13 @@ static TextLayer *s_text_time;
 static TextLayer *s_text_distance;
 static TextLayer *s_text_pace;
 static TextLayer *s_text_heart_rate;
+static TextLayer *s_text_heart_rate_unit;
 static Layer *s_heart_layer;
 static Layer *s_heart_zone_layer;
 static GPath *s_heart_path;
 static HeartRateZone s_heart_rate_zone;
 
-static GPoint s_heart_points[] = {{2, 9}, {22, 9}, {12, 23}};
+static GPoint s_heart_points[] = {{2, 7}, {18, 7}, {10, 19}};
 static const GPathInfo s_heart_path_info = {
   .num_points = 3,
   .points = s_heart_points,
@@ -45,8 +46,8 @@ static void prv_heart_layer_update_proc(Layer *layer, GContext *ctx) {
     return;
   }
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, GPoint(7, 7), 7);
-  graphics_fill_circle(ctx, GPoint(17, 7), 7);
+  graphics_fill_circle(ctx, GPoint(6, 6), 6);
+  graphics_fill_circle(ctx, GPoint(14, 6), 6);
   gpath_draw_filled(ctx, s_heart_path);
 }
 
@@ -87,7 +88,7 @@ bool dashboard_create(Window *window) {
   int16_t content_width = bounds.size.w - horizontal_inset * 2;
   int16_t half_width = content_width / 2;
   int16_t heart_rate_y = metric_y + metric_height;
-  int16_t heart_group_x = (bounds.size.w - 122) / 2;
+  int16_t heart_group_x = (bounds.size.w - 108) / 2;
 
   s_text_status = text_layer_create(
       GRect(horizontal_inset, status_y, content_width, status_height));
@@ -133,7 +134,7 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_pace));
 
   s_heart_layer = layer_create(
-      GRect(heart_group_x, heart_rate_y + 2, 24, 24));
+      GRect(heart_group_x, heart_rate_y + 2, 20, 20));
   if (s_heart_layer == NULL) {
     goto fail;
   }
@@ -145,15 +146,27 @@ bool dashboard_create(Window *window) {
   layer_add_child(window_layer, s_heart_layer);
 
   s_text_heart_rate = text_layer_create(
-      GRect(heart_group_x + 28, heart_rate_y, 94, 30));
+      GRect(heart_group_x + 24, heart_rate_y, 50, 30));
   if (s_text_heart_rate == NULL) {
     goto fail;
   }
   prv_format_text_layer(s_text_heart_rate);
   text_layer_set_font(s_text_heart_rate,
                       fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text_alignment(s_text_heart_rate, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_text_heart_rate, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate));
+
+  s_text_heart_rate_unit = text_layer_create(
+      GRect(heart_group_x + 74, heart_rate_y, 34, 30));
+  if (s_text_heart_rate_unit == NULL) {
+    goto fail;
+  }
+  prv_format_text_layer(s_text_heart_rate_unit);
+  text_layer_set_font(s_text_heart_rate_unit,
+                      fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_text_alignment(s_text_heart_rate_unit, GTextAlignmentLeft);
+  text_layer_set_text(s_text_heart_rate_unit, "BPM");
+  layer_add_child(window_layer, text_layer_get_layer(s_text_heart_rate_unit));
 
   s_heart_zone_layer = layer_create(
       GRect((bounds.size.w - 74) / 2, heart_rate_y + 32, 74, 8));
@@ -196,6 +209,10 @@ void dashboard_destroy(void) {
   if (s_text_heart_rate != NULL) {
     text_layer_destroy(s_text_heart_rate);
     s_text_heart_rate = NULL;
+  }
+  if (s_text_heart_rate_unit != NULL) {
+    text_layer_destroy(s_text_heart_rate_unit);
+    s_text_heart_rate_unit = NULL;
   }
   if (s_heart_layer != NULL) {
     layer_destroy(s_heart_layer);
@@ -269,10 +286,10 @@ void dashboard_update_heart_rate(bool available, int32_t bpm,
                                  HeartRateZone zone) {
   static char formatted_heart_rate[16];
   if (available) {
-    snprintf(formatted_heart_rate, sizeof(formatted_heart_rate), "%ld BPM",
+    snprintf(formatted_heart_rate, sizeof(formatted_heart_rate), "%ld",
              (long)bpm);
   } else {
-    snprintf(formatted_heart_rate, sizeof(formatted_heart_rate), "-- BPM");
+    snprintf(formatted_heart_rate, sizeof(formatted_heart_rate), "--");
   }
   if (s_text_heart_rate != NULL) {
     text_layer_set_text(s_text_heart_rate, formatted_heart_rate);
