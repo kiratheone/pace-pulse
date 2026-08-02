@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define DEG_TO_RAD (3.14159265359f / 180.0f)
-#define EARTH_RADIUS_M 6371000.0f
+#define METERS_PER_DEGREE 111000.0f
 #define MIN_STEP_DISTANCE_MM 20000U
 #define MAX_POSITION_INTERVAL_MS 120000U
 #define MAX_RUNNING_SPEED_MPS 15U
@@ -14,6 +14,25 @@
 
 static uint32_t prv_clamp_u64(uint64_t value) {
   return value > UINT32_MAX ? UINT32_MAX : (uint32_t)value;
+}
+
+static float prv_fast_sqrtf(float value) {
+  union {
+    float floating_point;
+    uint32_t integer;
+  } approximation = {value};
+  approximation.integer = 0x1FBD1DF5U + (approximation.integer >> 1);
+  return approximation.floating_point;
+}
+
+static float prv_euclidean_distance(float x, float y) {
+  if (fabsf(x) < 0.01f) {
+    return fabsf(y);
+  }
+  if (fabsf(y) < 0.01f) {
+    return fabsf(x);
+  }
+  return prv_fast_sqrtf(x * x + y * y);
 }
 
 static void prv_set_baseline(Tracker *tracker, TrackerPosition position) {
@@ -67,13 +86,15 @@ uint32_t tracker_position_distance_mm(const TrackerPosition *first,
     longitude_delta_e6 += 360000000;
   }
 
-  float first_latitude = first->latitude_e6 * 1e-6f * DEG_TO_RAD;
-  float second_latitude = second->latitude_e6 * 1e-6f * DEG_TO_RAD;
-  float latitude_delta = second_latitude - first_latitude;
-  float longitude_delta = longitude_delta_e6 * 1e-6f * DEG_TO_RAD;
-  float x = longitude_delta * cosf((first_latitude + second_latitude) * 0.5f);
+  int64_t latitude_delta_e6 =
+      (int64_t)second->latitude_e6 - first->latitude_e6;
+  float latitude_delta_m =
+      latitude_delta_e6 * 1e-6f * METERS_PER_DEGREE;
+  float first_latitude_rad = first->latitude_e6 * 1e-6f * DEG_TO_RAD;
+  float longitude_delta_m = longitude_delta_e6 * 1e-6f *
+                            METERS_PER_DEGREE * cosf(first_latitude_rad);
   float distance_m =
-      EARTH_RADIUS_M * sqrtf(x * x + latitude_delta * latitude_delta);
+      prv_euclidean_distance(latitude_delta_m, longitude_delta_m);
 
   if (!isfinite(distance_m) || distance_m <= 0.0f) {
     return 0;
@@ -178,8 +199,8 @@ bool tracker_current_pace(const Tracker *tracker, uint32_t *pace_seconds_per_km)
     return false;
   }
 
-  uint64_t total_time_ms = 0;
-  uint64_t total_distance_mm = 0;
+  uint32_t total_time_ms = 0;
+  uint32_t total_distance_mm = 0;
   for (uint16_t offset = 0; offset < TRACKER_SPEED_BUFFER_SIZE; offset++) {
     uint16_t index =
         (tracker->speed_buffer_position + TRACKER_SPEED_BUFFER_SIZE - 1 - offset) %
@@ -188,18 +209,21 @@ bool tracker_current_pace(const Tracker *tracker, uint32_t *pace_seconds_per_km)
     if (!sample->valid) {
       break;
     }
+    if (sample->delta_ms > UINT32_MAX - total_time_ms ||
+        sample->distance_mm > UINT32_MAX - total_distance_mm) {
+      return false;
+    }
     total_time_ms += sample->delta_ms;
     total_distance_mm += sample->distance_mm;
     if (total_distance_mm >= PACE_AVERAGING_DISTANCE_MM) {
       break;
     }
   }
-  if (total_distance_mm == 0) {
+  if (total_distance_mm == 0 || total_time_ms > UINT32_MAX / 1000U) {
     return false;
   }
 
-  *pace_seconds_per_km =
-      prv_clamp_u64(total_time_ms * 1000ULL / total_distance_mm);
+  *pace_seconds_per_km = total_time_ms * 1000U / total_distance_mm;
   return true;
 }
 

@@ -118,6 +118,26 @@ static void test_current_pace_expires_without_movement(void) {
   assert(!tracker_current_pace(&tracker, &pace));
 }
 
+static void test_current_pace_rejects_accumulator_overflow(void) {
+  Tracker tracker;
+  tracker_init(&tracker);
+  tracker.seconds_since_movement = 0;
+  tracker.speed_buffer_position = 2;
+  tracker.speed_buffer[0] = (TrackerSpeedSample) {
+    .delta_ms = UINT32_MAX,
+    .distance_mm = 100000,
+    .valid = true,
+  };
+  tracker.speed_buffer[1] = (TrackerSpeedSample) {
+    .delta_ms = 1,
+    .distance_mm = 100000,
+    .valid = true,
+  };
+
+  uint32_t pace = 0;
+  assert(!tracker_current_pace(&tracker, &pace));
+}
+
 int main(void) {
   test_position_validation();
   test_distance_is_non_negative_and_wraps_antimeridian();
@@ -125,5 +145,6 @@ int main(void) {
   test_implausible_and_delayed_positions_rebase_without_distance();
   test_long_run_pace_and_elapsed_time_do_not_overflow();
   test_current_pace_expires_without_movement();
+  test_current_pace_rejects_accumulator_overflow();
   return 0;
 }

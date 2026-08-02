@@ -41,6 +41,16 @@ class CLogicTests(unittest.TestCase):
     def test_tracker_logic_executes_as_host_c_code(self):
         self.compile_and_run("tests/c/test_tracker.c", ["src/c/tracker.c"])
 
+    def test_current_pace_uses_32_bit_window_accumulators(self):
+        tracker_source = (ROOT / "src/c/tracker.c").read_text()
+        self.assertIn("uint32_t total_time_ms = 0;", tracker_source)
+        self.assertIn("uint32_t total_distance_mm = 0;", tracker_source)
+
+    def test_distance_calculation_avoids_builtin_square_root(self):
+        tracker_source = (ROOT / "src/c/tracker.c").read_text()
+        self.assertIn("prv_fast_sqrtf", tracker_source)
+        self.assertNotRegex(tracker_source, r"(?<!fast_)sqrtf\(")
+
 
 if __name__ == "__main__":
     unittest.main()
